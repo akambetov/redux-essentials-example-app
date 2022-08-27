@@ -7,6 +7,7 @@ import {
 } from 'react-router-dom'
 
 import { Navbar } from './app/Navbar'
+import { AddNewPost } from './features/posts/AddPostFrom'
 
 import { PostsList } from './features/posts/PostsList'
 
@@ -16,7 +17,16 @@ function App() {
       <Navbar />
       <div className="App">
         <Switch>
-          <Route exact path="/" render={() => <PostsList />} />
+          <Route
+            exact
+            path="/"
+            render={() => (
+              <>
+                <PostsList />
+                <AddNewPost />
+              </>
+            )}
+          />
           <Redirect to="/" />
         </Switch>
       </div>
