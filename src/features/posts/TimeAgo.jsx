@@ -3,7 +3,6 @@ import React from 'react'
 
 export const TimeAgo = ({ timestamp }) => {
   let timeAgo = ''
-  console.log(timestamp)
 
   if (timestamp) {
     const date = parseISO(timestamp)

@@ -7,6 +7,9 @@ import { TimeAgo } from './TimeAgo'
 
 export const PostsList = () => {
   const posts = useSelector((state) => state.posts)
+  const orderedPosts = posts
+    .slice()
+    .sort((a, b) => b.date.localeCompare(a.date))
 
   const renderPosts = (posts) =>
     posts.map((post) => (
@@ -24,7 +27,7 @@ export const PostsList = () => {
   return (
     <section className="posts-list">
       <h2>Posts</h2>
-      {renderPosts(posts)}
+      {renderPosts(orderedPosts)}
     </section>
   )
 }
