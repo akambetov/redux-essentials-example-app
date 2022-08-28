@@ -92,21 +92,21 @@ const postsSlice = createSlice({
         state.receivedPosts.data = []
         state.receivedPosts.error = action.error.message
       })
-      .addCase(addNewPost.pending, (state) => {
-        state.newPost.status = LOADING
-        state.newPost.data = []
-        state.newPost.error = null
-      })
+      // .addCase(addNewPost.pending, (state) => {
+      //   state.newPost.status = LOADING
+      //   state.newPost.data = []
+      //   state.newPost.error = null
+      // })
       .addCase(addNewPost.fulfilled, (state, action) => {
         state.newPost.status = SUCCEEDED
         state.newPost.data = state.newPost.data.concat(action.payload)
         state.newPost.error = null
       })
-      .addCase(addNewPost.rejected, (state, action) => {
-        state.newPost.status = FAILED
-        state.newPost.data = []
-        state.newPost.error = action.error.message
-      })
+    // .addCase(addNewPost.rejected, (state, action) => {
+    //   state.newPost.status = FAILED
+    //   state.newPost.data = []
+    //   state.newPost.error = action.error.message
+    // })
   },
 })
 

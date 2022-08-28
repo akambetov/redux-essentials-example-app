@@ -3,17 +3,18 @@ import { useDispatch, useSelector } from 'react-redux'
 
 import { Spinner } from '../../components/Spinner'
 import { addNewPost } from './postsSlice'
-import { FAILED, LOADING, SUCCEEDED } from '../../constants'
+import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
 
 export const AddNewPost = () => {
   const dispatch = useDispatch()
   const users = useSelector((state) => state.users.data)
-  const addPostStatus = useSelector((state) => state.posts.newPost.status)
-  const addPostError = useSelector((state) => state.posts.newPost.error)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
-  const canSave = !!title && !!content && userId
+  const [addRequestStatus, setAddRequestStatus] = useState(IDLE)
+  const [error, setError] = useState(null)
+  const canSave =
+    [title, content, userId].every(Boolean) && addRequestStatus === IDLE
 
   const onTitleChange = (event) => setTitle(event.target.value)
 
@@ -21,14 +22,24 @@ export const AddNewPost = () => {
 
   const onAuthorChange = (event) => setUserId(event.target.value)
 
-  const onPostSave = (event) => {
+  const onPostSave = async (event) => {
     event.preventDefault()
 
     if (canSave) {
-      dispatch(addNewPost({ title, content, user: userId }))
-      setTitle('')
-      setContent('')
-      setUserId('')
+      try {
+        setAddRequestStatus(LOADING)
+        await dispatch(addNewPost({ title, content, usesr: userId })).unwrap()
+        setTitle('')
+        setContent('')
+        setUserId('')
+        setAddRequestStatus(SUCCEEDED)
+      } catch (err) {
+        setError(err.message)
+        setAddRequestStatus(FAILED)
+        console.error('Failed to save the post: ', err)
+      } finally {
+        setTimeout(() => setAddRequestStatus(IDLE), 2000)
+      }
     }
   }
 
@@ -65,9 +76,9 @@ export const AddNewPost = () => {
           Save Post
         </button>
       </form>
-      {addPostStatus === LOADING && <Spinner text="laoding..." />}
-      {addPostStatus === SUCCEEDED && <div>OK</div>}
-      {addPostStatus === FAILED && <div>{addPostError}</div>}
+      {addRequestStatus === LOADING && <Spinner text="laoding..." />}
+      {addRequestStatus === SUCCEEDED && <div>OK</div>}
+      {addRequestStatus === FAILED && <div>{error}</div>}
     </section>
   )
 }
