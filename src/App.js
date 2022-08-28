@@ -24,8 +24,8 @@ function App() {
             path="/"
             render={() => (
               <>
-                <PostsList />
                 <AddNewPost />
+                <PostsList />
               </>
             )}
           />
