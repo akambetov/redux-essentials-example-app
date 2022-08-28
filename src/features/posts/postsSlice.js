@@ -101,6 +101,9 @@ const postsSlice = createSlice({
         state.newPost.status = SUCCEEDED
         state.newPost.data = state.newPost.data.concat(action.payload)
         state.newPost.error = null
+        state.receivedPosts.data = state.receivedPosts.data.concat(
+          action.payload
+        )
       })
     // .addCase(addNewPost.rejected, (state, action) => {
     //   state.newPost.status = FAILED
