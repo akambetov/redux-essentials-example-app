@@ -28,7 +28,7 @@ export const AddNewPost = () => {
     if (canSave) {
       try {
         setAddRequestStatus(LOADING)
-        await dispatch(addNewPost({ title, content, usesr: userId })).unwrap()
+        await dispatch(addNewPost({ title, content, user: userId })).unwrap()
         setTitle('')
         setContent('')
         setUserId('')
