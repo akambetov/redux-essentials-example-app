@@ -1,11 +1,15 @@
 import React, { useState } from 'react'
 import { useDispatch, useSelector } from 'react-redux'
 
-import { postAdded } from './postsSlice'
+import { Spinner } from '../../components/Spinner'
+import { addNewPost } from './postsSlice'
+import { FAILED, LOADING, SUCCEEDED } from '../../constants'
 
 export const AddNewPost = () => {
   const dispatch = useDispatch()
   const users = useSelector((state) => state.users.data)
+  const addPostStatus = useSelector((state) => state.posts.newPost.status)
+  const addPostError = useSelector((state) => state.posts.newPost.error)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
@@ -20,8 +24,8 @@ export const AddNewPost = () => {
   const onPostSave = (event) => {
     event.preventDefault()
 
-    if (title && content && userId) {
-      dispatch(postAdded(title, content, userId))
+    if (canSave) {
+      dispatch(addNewPost({ title, content, user: userId }))
       setTitle('')
       setContent('')
       setUserId('')
@@ -61,6 +65,9 @@ export const AddNewPost = () => {
           Save Post
         </button>
       </form>
+      {addPostStatus === LOADING && <Spinner text="laoding..." />}
+      {addPostStatus === SUCCEEDED && <div>OK</div>}
+      {addPostStatus === FAILED && <div>{addPostError}</div>}
     </section>
   )
 }

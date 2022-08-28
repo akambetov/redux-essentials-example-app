@@ -1,12 +1,11 @@
-import { createAsyncThunk, createSlice, nanoid } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
 
 import { client } from '../../api/client'
 import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
 
 const initialState = {
-  data: [],
-  status: IDLE,
-  error: null,
+  receivedPosts: { data: [], status: IDLE, error: null },
+  newPost: { data: [], status: IDLE, error: null },
 }
 
 export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
@@ -15,33 +14,42 @@ export const fetchPosts = createAsyncThunk('posts/fetchPosts', async () => {
   return response.data
 })
 
+export const addNewPost = createAsyncThunk(
+  'posts/addNewPost',
+  async (initialPost) => {
+    const response = await client.post('/fakeApi/posts', initialPost)
+
+    return response.data
+  }
+)
+
 const postsSlice = createSlice({
   name: 'posts',
   initialState,
   reducers: {
-    postAdded: {
-      reducer: (state, action) => {
-        state.data.push(action.payload)
-      },
-      prepare: (title, content, userId) => {
-        return {
-          payload: {
-            title,
-            content,
-            user: userId,
-            id: nanoid(),
-            date: new Date().toISOString(),
-            reactions: {
-              thumbsUp: 0,
-              hooray: 0,
-              heart: 0,
-              rocket: 0,
-              eyes: 0,
-            },
-          },
-        }
-      },
-    },
+    // postAdded: {
+    //   reducer: (state, action) => {
+    //     state.data.push(action.payload)
+    //   },
+    //   prepare: (title, content, userId) => {
+    //     return {
+    //       payload: {
+    //         title,
+    //         content,
+    //         user: userId,
+    //         id: nanoid(),
+    //         date: new Date().toISOString(),
+    //         reactions: {
+    //           thumbsUp: 0,
+    //           hooray: 0,
+    //           heart: 0,
+    //           rocket: 0,
+    //           eyes: 0,
+    //         },
+    //       },
+    //     }
+    //   },
+    // },
     postUpdated: (state, action) => {
       const { id, title, content, userId } = action.payload
       const existingPost = state.data.find(
@@ -68,28 +76,47 @@ const postsSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(fetchPosts.pending, (state) => {
-        state.status = LOADING
-        state.data = []
-        state.error = null
+        state.receivedPosts.status = LOADING
+        state.receivedPosts.data = []
+        state.receivedPosts.error = null
       })
       .addCase(fetchPosts.fulfilled, (state, action) => {
-        state.status = SUCCEEDED
-        state.data = state.data.concat(action.payload)
-        state.error = null
+        state.receivedPosts.status = SUCCEEDED
+        state.receivedPosts.data = state.receivedPosts.data.concat(
+          action.payload
+        )
+        state.receivedPosts.error = null
       })
       .addCase(fetchPosts.rejected, (state, action) => {
-        state.status = FAILED
-        state.data = []
-        state.error = action.error.message
+        state.receivedPosts.status = FAILED
+        state.receivedPosts.data = []
+        state.receivedPosts.error = action.error.message
+      })
+      .addCase(addNewPost.pending, (state) => {
+        state.newPost.status = LOADING
+        state.newPost.data = []
+        state.newPost.error = null
+      })
+      .addCase(addNewPost.fulfilled, (state, action) => {
+        state.newPost.status = SUCCEEDED
+        state.newPost.data = state.newPost.data.concat(action.payload)
+        state.newPost.error = null
+      })
+      .addCase(addNewPost.rejected, (state, action) => {
+        state.newPost.status = FAILED
+        state.newPost.data = []
+        state.newPost.error = action.error.message
       })
   },
 })
 
-export const { postAdded, postUpdated, reactionAdded } = postsSlice.actions
+export const { postUpdated, reactionAdded } = postsSlice.actions
 
-export const selectAllPosts = (state) => state.posts.data
+export const selectAllPosts = (state) => state.posts.receivedPosts.data
 
 export const selectPostById = (state, postId) =>
-  state.posts.data.find((post) => String(post.id) === String(postId))
+  state.posts.receivedPosts.data.find(
+    (post) => String(post.id) === String(postId)
+  )
 
 export default postsSlice.reducer
