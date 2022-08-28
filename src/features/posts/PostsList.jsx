@@ -7,6 +7,7 @@ import { PostAuthor } from './PostAuthor'
 import { ReactionButtons } from './ReactionButtons'
 import { TimeAgo } from './TimeAgo'
 import { fetchPosts, selectAllPosts } from './postsSlice'
+import { fetchUsers } from '../users/usersSlice'
 import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
 
 const PostExcerpt = ({ post }) => (
@@ -27,8 +28,9 @@ const PostExcerpt = ({ post }) => (
 export const PostsList = () => {
   const dispatch = useDispatch()
   const postsStataus = useSelector((state) => state.posts.status)
-  const error = useSelector((state) => state.posts.error)
+  const postsError = useSelector((state) => state.posts.error)
   const posts = useSelector(selectAllPosts)
+  const usersStataus = useSelector((state) => state.users.status)
 
   let content
 
@@ -43,12 +45,13 @@ export const PostsList = () => {
       <PostExcerpt key={post.id} post={post} />
     ))
   } else if (postsStataus === FAILED) {
-    content = <div>{error}</div>
+    content = <div>{postsError}</div>
   }
 
   useEffect(() => {
     postsStataus === IDLE && dispatch(fetchPosts())
-  }, [dispatch, postsStataus])
+    usersStataus === IDLE && dispatch(fetchUsers())
+  }, [dispatch, postsStataus, usersStataus])
 
   return (
     <section className="posts-list">

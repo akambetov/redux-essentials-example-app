@@ -5,7 +5,7 @@ import { postAdded } from './postsSlice'
 
 export const AddNewPost = () => {
   const dispatch = useDispatch()
-  const users = useSelector((state) => state.users)
+  const users = useSelector((state) => state.users.data)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
