@@ -24,6 +24,8 @@ const PostExcerpt = ({ post }) => (
   </article>
 )
 
+const MemoPostExcerpt = React.memo(PostExcerpt)
+
 export const PostsList = () => {
   const dispatch = useDispatch()
   const postsStataus = useSelector((state) => state.posts.receivedPosts.status)
@@ -41,7 +43,7 @@ export const PostsList = () => {
       .sort((a, b) => b.date.localeCompare(a.date))
 
     content = orderedPosts.map((post) => (
-      <PostExcerpt key={post.id} post={post} />
+      <MemoPostExcerpt key={post.id} post={post} />
     ))
   } else if (postsStataus === FAILED) {
     content = <div>{postsError}</div>
