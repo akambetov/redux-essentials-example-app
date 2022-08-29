@@ -7,7 +7,6 @@ import { PostAuthor } from './PostAuthor'
 import { ReactionButtons } from './ReactionButtons'
 import { TimeAgo } from './TimeAgo'
 import { fetchPosts, selectAllPosts } from './postsSlice'
-import { fetchUsers } from '../users/usersSlice'
 import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
 
 const PostExcerpt = ({ post }) => (
@@ -50,7 +49,6 @@ export const PostsList = () => {
 
   useEffect(() => {
     postsStataus === IDLE && dispatch(fetchPosts())
-    usersStataus === IDLE && dispatch(fetchUsers())
   }, [dispatch, postsStataus, usersStataus])
 
   return (
