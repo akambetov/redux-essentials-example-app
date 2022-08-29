@@ -39,7 +39,7 @@ export const NotificationsList = () => {
 
   useLayoutEffect(() => {
     dispatch(allNotificationsRead())
-  })
+  }, [dispatch, notifications.length])
 
   return (
     <section className="notificationsList">
