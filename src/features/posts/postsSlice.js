@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice } from '@reduxjs/toolkit'
+import { createAsyncThunk, createSelector, createSlice } from '@reduxjs/toolkit'
 
 import { client } from '../../api/client'
 import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
@@ -52,7 +52,7 @@ const postsSlice = createSlice({
     // },
     postUpdated: (state, action) => {
       const { id, title, content, userId } = action.payload
-      const existingPost = state.data.find(
+      const existingPost = state.receivedPosts.data.find(
         (post) => String(post.id) === String(id)
       )
 
@@ -64,7 +64,7 @@ const postsSlice = createSlice({
     },
     reactionAdded: (state, action) => {
       const { postId, reaction } = action.payload
-      const existingPost = state.data.find(
+      const existingPost = state.receivedPosts.data.find(
         (post) => String(post.id) === String(postId)
       )
 
@@ -121,5 +121,10 @@ export const selectPostById = (state, postId) =>
   state.posts.receivedPosts.data.find(
     (post) => String(post.id) === String(postId)
   )
+
+export const selectPostsByUser = createSelector(
+  [selectAllPosts, (_, userId) => userId],
+  (posts, userId) => posts.filter((post) => post.user === userId)
+)
 
 export default postsSlice.reducer
