@@ -1,21 +1,18 @@
 import React, { useState } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import { useSelector } from 'react-redux'
 
 import { Spinner } from '../../components/Spinner'
-import { addNewPost } from './postsSlice'
-import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
 import { selectAllUsers } from '../users/usersSlice'
+import { useAddNewPostMutation } from '../api/apiSlice'
 
 export const AddNewPost = () => {
-  const dispatch = useDispatch()
+  const [addNewPost, { isLoading }] = useAddNewPostMutation()
   const users = useSelector(selectAllUsers)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
-  const [addRequestStatus, setAddRequestStatus] = useState(IDLE)
-  const [error, setError] = useState(null)
-  const canSave =
-    [title, content, userId].every(Boolean) && addRequestStatus === IDLE
+
+  const canSave = [title, content, userId].every(Boolean) && !isLoading
 
   const onTitleChange = (event) => setTitle(event.target.value)
 
@@ -28,18 +25,12 @@ export const AddNewPost = () => {
 
     if (canSave) {
       try {
-        setAddRequestStatus(LOADING)
-        await dispatch(addNewPost({ title, content, user: userId })).unwrap()
+        await addNewPost({ title, content, user: userId }).unwrap()
         setTitle('')
         setContent('')
         setUserId('')
-        setAddRequestStatus(SUCCEEDED)
       } catch (err) {
-        setError(err.message)
-        setAddRequestStatus(FAILED)
         console.error('Failed to save the post: ', err)
-      } finally {
-        setTimeout(() => setAddRequestStatus(IDLE), 2000)
       }
     }
   }
@@ -62,24 +53,29 @@ export const AddNewPost = () => {
           type="text"
           id="postTitle"
           name="postTItle"
+          placeholder="What's on your mind?"
           value={title}
           onChange={onTitleChange}
         />
         <label htmlFor="postContent">Content:</label>
-        <input
-          type="text"
+        <textarea
           id="postContent"
           name="postContent"
           value={content}
           onChange={onContentChange}
         />
-        <button type="submit" disabled={!canSave}>
-          Save Post
-        </button>
+        <div
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+          }}
+        >
+          <button type="submit" disabled={!canSave}>
+            Save Post
+          </button>
+          {isLoading && <Spinner text="loading" />}
+        </div>
       </form>
-      {addRequestStatus === LOADING && <Spinner text="laoding..." />}
-      {addRequestStatus === SUCCEEDED && <div>OK</div>}
-      {addRequestStatus === FAILED && <div>{error}</div>}
     </section>
   )
 }
