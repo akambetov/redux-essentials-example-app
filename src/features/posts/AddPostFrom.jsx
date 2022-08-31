@@ -4,10 +4,11 @@ import { useDispatch, useSelector } from 'react-redux'
 import { Spinner } from '../../components/Spinner'
 import { addNewPost } from './postsSlice'
 import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
+import { selectAllUsers } from '../users/usersSlice'
 
 export const AddNewPost = () => {
   const dispatch = useDispatch()
-  const users = useSelector((state) => state.users.data)
+  const users = useSelector(selectAllUsers)
   const [title, setTitle] = useState('')
   const [content, setContent] = useState('')
   const [userId, setUserId] = useState('')
