@@ -1,17 +1,13 @@
-import React, { useEffect } from 'react'
-import { useDispatch, useSelector } from 'react-redux'
+import React, { useMemo } from 'react'
 import { Link } from 'react-router-dom'
 
 import { Spinner } from '../../components/Spinner'
 import { PostAuthor } from './PostAuthor'
 import { ReactionButtons } from './ReactionButtons'
 import { TimeAgo } from './TimeAgo'
-import { fetchPosts, selectPostIds, selectPostById } from './postsSlice'
-import { FAILED, IDLE, LOADING, SUCCEEDED } from '../../constants'
+import { useGetPostsQuery } from '../api/apiSlice'
 
-const PostExcerpt = ({ postId }) => {
-  const post = useSelector((state) => selectPostById(state, postId))
-
+const PostExcerpt = ({ post }) => {
   return (
     <article className="post-excerpt">
       <h3>{post.title}</h3>
@@ -29,26 +25,32 @@ const PostExcerpt = ({ postId }) => {
 }
 
 export const PostsList = () => {
-  const dispatch = useDispatch()
-  const orderedPostsIds = useSelector(selectPostIds)
-  const postsStataus = useSelector((state) => state.posts.status)
-  const postsError = useSelector((state) => state.posts.error)
+  const {
+    data: posts = [],
+    isLoading,
+    isSuccess,
+    isError,
+    error,
+  } = useGetPostsQuery()
+
+  const sortedPosts = useMemo(() => {
+    const sortedPosts = posts.slice()
+    // Sort posts in descending chronological order
+    sortedPosts.sort((a, b) => b.date.localeCompare(a.date))
+    return sortedPosts
+  }, [posts])
 
   let content
 
-  if (postsStataus === LOADING) {
+  if (isLoading) {
     content = <Spinner text="loading..." />
-  } else if (postsStataus === SUCCEEDED) {
-    content = orderedPostsIds.map((postId) => (
-      <PostExcerpt key={postId} postId={postId} />
+  } else if (isSuccess) {
+    content = sortedPosts.map((post) => (
+      <PostExcerpt key={post.id} post={post} />
     ))
-  } else if (postsStataus === FAILED) {
-    content = <div>{postsError}</div>
+  } else if (isError) {
+    content = <div>{error.toString()}</div>
   }
-
-  useEffect(() => {
-    postsStataus === IDLE && dispatch(fetchPosts())
-  }, [dispatch, postsStataus])
 
   return (
     <section className="posts-list">
